@@ -17,3 +17,8 @@ The application should be available on port 80.
 Information about the used framework check out  
 https://www.npmjs.com/package/skeidjs
 
+For the mongo db connection provide the following environment variables
+- MONGO_URL
+- MONGO_USR
+- MONGO_PW
+

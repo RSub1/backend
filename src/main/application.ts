@@ -1,31 +1,45 @@
-import { Application, Patch, Post, Request, Response } from 'skeidjs';
-import { filter } from 'rxjs/operators'
+import { Application, OnError, Patch, Post, Request, Response } from 'skeidjs';
 import { InfectionService } from './service/infection.service';
 import { CmNotificationSubscriptionOptions, CmPatchInfectionStatePayload } from './model/client.model';
+import { UserService } from './service/user.service';
 
 @Application({
     contentType: 'application/json',
     server: {
+        port: 80,
         maxConnections: 10,
         timeout: 500,
         keepAliveTimeout: 500
     },
 })
-class RSubOneBoot {
+class RSubOneBoot implements OnError{
 
-    constructor( private infectionService: InfectionService ) {}
+    constructor( private infectionService: InfectionService, private userService: UserService ) {}
+
+    onError( error?: any ) {
+        console.log(error)
+    }
 
     @Post({ route: '/v0/' } )
     createNew( request: Request, response: Response ) {
-
+        this.userService.createNew().then(id => {
+            response.status(201, 'User Created').respond({ id })
+        });
     }
 
-    @Post({ route: '/v0/_self' } )
+    @Post({ route: '/v0/_self/notifications' } )
     subscribeNotifications( request: Request, response: Response ) {
+        response.setHeader('Access-Control-Allow-Origin', '*')
+        .setHeader('Access-Control-Expose-Headers', '*')
+        .setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+
         const payload = request.json() as CmNotificationSubscriptionOptions;
         this.infectionService.observePotentialContaminationWithContactList(payload.contactPersonIds)
-            .pipe(filter(s => s))
-            .subscribe(hasRisk => response.event().dispatch('RISK', {}))
+            .subscribe(hasRisk => {
+                if(hasRisk) {
+                    response.event().dispatch('RISK', {})
+                }
+            })
     }
 
     @Patch({ route: '/v0/_self' } )

@@ -33,12 +33,15 @@ export class InfectionService {
 
     observePotentialContaminationWithContactList( contactList: Array<string> ): Observable<boolean> {
         const riskDetection$ = new BehaviorSubject(false);
+
         this.hadContactWithContaminated(contactList).then(contact => riskDetection$.next(contact));
+
         this.updates$.pipe(
+            filter(user => !!user),
             filter(user =>
                 !!contactList.filter(id => user._id === id && user.infectionState === InfectionState.CONFIRMED).length
             )
-        ).subscribe(_ => riskDetection$.next(true));
+        ).subscribe(user => riskDetection$.next(true));
 
         return riskDetection$;
     }
