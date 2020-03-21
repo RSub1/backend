@@ -3,10 +3,9 @@ import { InfectionService } from './service/infection.service';
 import {
     CmNewUserResponsePayload,
     CmNotificationSubscriptionOptions,
-    CmPatchInfectionStatePayload, NotificationEvent
+    CmPatchInfectionStatePayload
 } from './model/client.model';
 import { UserService } from './service/user.service';
-import has = Reflect.has;
 import { TestService } from './test.env';
 
 @Application({

@@ -5,9 +5,12 @@ export class TestService {
     constructor() {}
 
     generateEventSourceHTML() {
+        const host = process.env.HOST;
+
+
         return `
         <html>
-    <body>
+    <body style="background: #252525;">
         <script>
             var SSE = function (url, options) {
                 if (!(this instanceof SSE)) {
@@ -201,22 +204,48 @@ export class TestService {
             };
 
 
-            const src = new SSE('http://localhost:80/v0/_self/notifications', {
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Expose-Headers': '*',
-                    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
-                    'Content-Type': 'application/json'
-                },
-                payload: JSON.stringify({
-                    "contactPersonIds": ["5e76413a1b75054cf946f868"]
-                }),
-                method: 'POST'
-            });
-            src.addEventListener('CONTACT_CONFIRMED', () => console.log(111))
-            src.stream();
+            
         </script>
+        <div style="max-width: fit-content; margin: auto">
+            <input type="text" id="id-list-input" 
+            style="width: 500px; height: 32px; font-size: 16px">
+            <button id="subscribe-button"
+                style="display: block; width: 100%; height: 32px; font-size: 16px"
+            >Show Subscription</button>
+            <div style="display: block; max-width: 100%" id="container">
+                
+            </div>
+        </div>
+        <script>
+            const input = document.getElementById('id-list-input');
+            const subscribeButton = document.getElementById('subscribe-button');
+            const container = document.getElementById('container');
+            subscribeButton.onclick = function () {
+                const src = new SSE('${host}/v0/_self/notifications', {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Expose-Headers': '*',
+                        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+                        'Content-Type': 'application/json'
+                    },
+                    payload: JSON.stringify({
+                        "contactPersonIds": [...input.value.replace(' ', '').split(',')]
+                    }),
+                    method: 'POST'
+                });
+                src.addEventListener('CONTACT_CONFIRMED', () => {
+                    const div = document.createElement('div');
+                    div.innerText = 'New Event';
+                    div.setAttribute('style', 'text-align: center; color: white; padding: 8px 0; margin: 8px 0; border: 1px solid');
+                    container.appendChild(div);
+                });
+                src.stream();
+            }
+        </script>
+        
+        
 
+ 
 
     </body>
 

@@ -22,3 +22,7 @@ For the mongo db connection provide the following environment variables
 - MONGO_USR
 - MONGO_PW
 
+
+For the html test set you host env variable
+- HOST
+
