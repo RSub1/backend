@@ -1,6 +1,7 @@
 import { Application, Patch, Post, Request, Response } from 'skeidjs';
+import { filter } from 'rxjs/operators'
 import { InfectionService } from './service/infection.service';
-import { CmPatchInfectionStatePayload } from './model/client.model';
+import { CmNotificationSubscriptionOptions, CmPatchInfectionStatePayload } from './model/client.model';
 
 @Application({
     contentType: 'application/json',
@@ -21,6 +22,10 @@ class RSubOneBoot {
 
     @Post({ route: '/v0/_self' } )
     subscribeNotifications( request: Request, response: Response ) {
+        const payload = request.json() as CmNotificationSubscriptionOptions;
+        this.infectionService.observePotentialContaminationWithContactList(payload.contactPersonIds)
+            .pipe(filter(s => s))
+            .subscribe(hasRisk => response.event().dispatch('RISK', {}))
     }
 
     @Patch({ route: '/v0/_self' } )

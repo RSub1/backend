@@ -4,7 +4,7 @@ export interface CmNewUserPayload {
 }
 
 export interface CmNotificationSubscriptionOptions {
-
+    contactPersonIds: Array<string>;
 }
 
 export interface CmPatchInfectionStatePayload {

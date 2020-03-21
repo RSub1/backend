@@ -1,7 +1,8 @@
 import { Injectable } from 'skeidjs';
 import { InfectionState } from '../model/client.model';
 import { User, UserModelAccessor } from '../model/user';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import moment = require('moment');
 
 @Injectable()
@@ -30,8 +31,15 @@ export class InfectionService {
             .then(results => !!results.filter(r => !!r.length).length);
     }
 
-    observePotentialContaminationWithContactList( contactList: Array<string> ) {
-        const changes$ = new BehaviorSubject(false);
-        this.hadContactWithContaminated(contactList).then(contact => changes$.next(contact));
+    observePotentialContaminationWithContactList( contactList: Array<string> ): Observable<boolean> {
+        const riskDetection$ = new BehaviorSubject(false);
+        this.hadContactWithContaminated(contactList).then(contact => riskDetection$.next(contact));
+        this.updates$.pipe(
+            filter(user =>
+                !!contactList.filter(id => user._id === id && user.infectionState === InfectionState.CONFIRMED).length
+            )
+        ).subscribe(_ => riskDetection$.next(true));
+
+        return riskDetection$;
     }
 }
