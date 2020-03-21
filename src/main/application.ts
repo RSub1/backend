@@ -1,4 +1,4 @@
-import { Application, OnError, Patch, Post, Request, Response } from 'skeidjs';
+import { Application, OnError, Patch, Post, Request, Response, ServerEventDispatcher } from 'skeidjs';
 import { InfectionService } from './service/infection.service';
 import {
     CmNewUserResponsePayload,
@@ -6,6 +6,7 @@ import {
     CmPatchInfectionStatePayload, NotificationEvent
 } from './model/client.model';
 import { UserService } from './service/user.service';
+import has = Reflect.has;
 
 @Application({
     contentType: 'application/json',
@@ -38,10 +39,11 @@ class RSubOneBoot implements OnError {
         .setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 
         const payload = request.json() as CmNotificationSubscriptionOptions;
+        const eventDispatcher: ServerEventDispatcher = response.event();
         this.infectionService.observePotentialContaminationWithContactList(payload.contactPersonIds)
             .subscribe(hasRisk => {
                 if(hasRisk) {
-                    response.event().dispatch(NotificationEvent.CONTACT_CONFIRMED, {})
+                    eventDispatcher.dispatch('CONTACT_CONFIRMED', {})
                 }
             });
     }
