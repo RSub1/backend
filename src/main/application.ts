@@ -1,4 +1,4 @@
-import { Application, OnError, Patch, Post, Request, Response } from 'skeidjs';
+import { Application, Get, OnError, Patch, Post, Request, Response } from 'skeidjs';
 import { InfectionService } from './service/infection.service';
 import {
     CmNewUserResponsePayload,
@@ -43,6 +43,15 @@ class RSubOneBoot implements OnError {
                 if(hasRisk) {
                     response.event().dispatch(NotificationEvent.CONTACT_CONFIRMED, {})
                 }
+            });
+    }
+
+    @Post({ route: '/v0/_self/infection-info' })
+    getStatus( request: Request, response: Response ) {
+        const payload = request.json() as CmNotificationSubscriptionOptions;
+        this.infectionService.hadContactWithContaminated(payload.contactPersonIds)
+            .then(hadContactToInfectedPeople => {
+                response.status(200, 'OK').respond({ hadContactToInfectedPeople })
             });
     }
 

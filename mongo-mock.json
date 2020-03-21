@@ -1,16 +1,13 @@
 [
   {
-    "userKey": "foobar",
     "dateOfConfirmedInfection": null,
     "infectionState": "HEALTHY"
   },
   {
-    "userKey": "foobaz",
     "dateOfConfirmedInfection": null,
     "infectionState": "HEALTHY"
   },
   {
-    "userKey": "barfoo",
     "dateOfConfirmedInfection": null,
     "infectionState": "PENDING"
   }

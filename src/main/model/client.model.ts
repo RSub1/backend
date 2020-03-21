@@ -7,6 +7,10 @@ export interface CmNotificationSubscriptionOptions {
     contactPersonIds: Array<string>;
 }
 
+export interface CmInfectionInfo {
+    hadContactToInfectedPeople: boolean;
+}
+
 export interface CmPatchInfectionStatePayload {
     state: InfectionState;
     userId: string;
