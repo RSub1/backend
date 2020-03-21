@@ -8,17 +8,19 @@ import moment = require('moment');
 @Injectable()
 export class InfectionService {
 
-    private readonly updates$: BehaviorSubject<User>;
+    private readonly updates$: BehaviorSubject<{ user: User, infectionSetTo: InfectionState }>;
 
     constructor() {
-        this.updates$ = new BehaviorSubject<User>(undefined);
+        this.updates$ = new BehaviorSubject<{ user: User, infectionSetTo: InfectionState }>(undefined);
     }
 
     patchUserInfection( id: string, infectionState: InfectionState ): Promise<void> {
         const dateOfConfirmedInfection = infectionState === InfectionState.CONFIRMED ? moment().toDate() : null;
 
         return UserModelAccessor.findOneAndUpdate({ _id: id }, { infectionState, dateOfConfirmedInfection })
-            .exec().then(usr => this.updates$.next(usr));
+            .exec().then(user => {
+                this.updates$.next({user, infectionSetTo: infectionState})
+            });
     }
 
     findInfectionByIdAndDate( id: string, date: Date ): Promise<Array<User>> {
@@ -38,8 +40,8 @@ export class InfectionService {
 
         this.updates$.pipe(
             filter(user => !!user),
-            filter(user =>
-                !!contactList.filter(id => user._id === id && user.infectionState === InfectionState.CONFIRMED).length
+            filter(v => !!contactList
+                .filter(id => v.user._id.toHexString() === id && v.infectionSetTo === InfectionState.CONFIRMED).length
             )
         ).subscribe(user => riskDetection$.next(true));
 
