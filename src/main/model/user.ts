@@ -10,9 +10,9 @@ const env = process.env.ENV;
 const localUri = 'mongodb://0.0.0.0:27017/rsubone';
 
 if(env === 'dev') {
-    mongoose.connect(localUri, _ => {});
+    mongoose.connect(localUri,{ useNewUrlParser: true, useUnifiedTopology: true }, _ => {});
 } else {
-    mongoose.connect(uri, { user, pass }, _ => {});
+    mongoose.connect(uri, { user, pass, useNewUrlParser: true, useUnifiedTopology: true }, _ => {});
 }
 
 

@@ -1,4 +1,4 @@
-import { Application, Get, OnError, Patch, Post, Request, Response } from 'skeidjs';
+import { Application, OnError, Patch, Post, Request, Response } from 'skeidjs';
 import { InfectionService } from './service/infection.service';
 import {
     CmNewUserResponsePayload,
