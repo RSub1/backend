@@ -208,7 +208,7 @@ export class TestService {
         </script>
         <div style="max-width: fit-content; margin: auto">
             <input type="text" id="id-list-input" 
-            style="width: 500px; height: 32px; font-size: 16px">
+            style="width: 100%; height: 32px; font-size: 16px">
             <button id="subscribe-button"
                 style="display: block; width: 100%; height: 32px; font-size: 16px"
             >Show Subscription</button>
@@ -235,8 +235,8 @@ export class TestService {
                 });
                 src.addEventListener('CONTACT_CONFIRMED', () => {
                     const div = document.createElement('div');
-                    div.innerText = 'New Event';
-                    div.setAttribute('style', 'text-align: center; color: white; padding: 8px 0; margin: 8px 0; border: 1px solid');
+                    div.innerHTML = '&#x1F912; &#x1F637; &#x1F927; Alarm f&uuml;r Corona 11  &#x1f9a0; &#x1f9a0; &#x1f9a0;';
+                    div.setAttribute('style', 'text-align: center; color: white; padding: 8px 0; margin: 8px 0; border: 1px solid; font-size: 48px');
                     container.appendChild(div);
                 });
                 src.stream();
