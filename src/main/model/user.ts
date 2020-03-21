@@ -15,6 +15,8 @@ if(env === 'dev') {
     mongoose.connect(uri, { user, pass, useNewUrlParser: true, useUnifiedTopology: true }, _ => {});
 }
 
+mongoose.set('useFindAndModify', false)
+
 
 export interface User extends mongoose.Document {
     infectionState: InfectionState;
