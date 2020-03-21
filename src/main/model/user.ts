@@ -8,23 +8,16 @@ const pass: string = process.env.MONGO_PW;
 const replica = '?replicaSet=rs0';
 const localUri = 'mongodb://0.0.0.0:27017/rsubone';
 
-mongoose.connect(localUri,(error: any) => {
-    if (error) {
-        console.log(error.message);
-    }
-
-});
+mongoose.connect(localUri, _ => {});
 
 export interface User extends mongoose.Document {
     infectionState: InfectionState;
     dateOfConfirmedInfection: Date;
-    userKey: string;
 }
 
 export const UserSchema = new mongoose.Schema({
     infectionState: { type: String, required: true, enum: [ 'HEALTHY', 'CONFIRMED', 'PENDING' ] },
     dateOfConfirmedInfection: { type: Date, required: false },
-    userKey: { type: String, required: true }
-});
+})
 
-export const UserModelAccessor = mongoose.model<User>('User', UserSchema);
+export const UserModelAccessor = mongoose.model<User>('users', UserSchema);

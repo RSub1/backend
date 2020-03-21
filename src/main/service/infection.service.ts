@@ -7,19 +7,22 @@ import moment = require('moment');
 @Injectable()
 export class InfectionService {
 
+    private readonly updates$: BehaviorSubject<User>;
+
     constructor() {
-
+        this.updates$ = new BehaviorSubject<User>(undefined);
     }
 
-    patchUserInfection( userKey: string, infectionState: InfectionState ): Promise<void> {
+    patchUserInfection( id: string, infectionState: InfectionState ): Promise<void> {
         const dateOfConfirmedInfection = infectionState === InfectionState.CONFIRMED ? moment().toDate() : null;
-        return UserModelAccessor.findOneAndUpdate({ userKey }, { infectionState, dateOfConfirmedInfection })
-            .exec().then();
+
+        return UserModelAccessor.findOneAndUpdate({ _id: id }, { infectionState, dateOfConfirmedInfection })
+            .exec().then(usr => this.updates$.next(usr));
     }
 
-    findInfectionByIdAndDate( userKey: string, date: Date ): Promise<Array<User>> {
+    findInfectionByIdAndDate( id: string, date: Date ): Promise<Array<User>> {
         const riskDate = moment(date).subtract(28, 'days').toDate();
-        return UserModelAccessor.find({ dateOfConfirmedInfection: { $gte: riskDate, $lt: date } }).exec();
+        return UserModelAccessor.find({ _id: id, dateOfConfirmedInfection: { $gte: riskDate, $lt: date } }).exec();
     }
 
     hadContactWithContaminated( contactList: Array<string> ): Promise<boolean> {
@@ -30,14 +33,5 @@ export class InfectionService {
     observePotentialContaminationWithContactList( contactList: Array<string> ) {
         const changes$ = new BehaviorSubject(false);
         this.hadContactWithContaminated(contactList).then(contact => changes$.next(contact));
-        const pipeline = [{
-            $match: ''
-        }]
-        UserModelAccessor.watch().on('change', (change) => {
-            console.log(change)
-
-        });
-
-
     }
 }
