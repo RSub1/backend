@@ -1,6 +1,6 @@
 
-export interface CmNewUserPayload {
-
+export interface CmNewUserResponsePayload {
+    id: string
 }
 
 export interface CmNotificationSubscriptionOptions {
@@ -9,11 +9,15 @@ export interface CmNotificationSubscriptionOptions {
 
 export interface CmPatchInfectionStatePayload {
     state: InfectionState;
-    user: string;
+    userId: string;
 }
 
 export enum InfectionState {
     CONFIRMED= 'CONFIRMED',
     PENDING = 'PENDING',
     HEALTHY = 'HEALTHY'
+}
+
+export enum NotificationEvent {
+    CONTACT_CONFIRMED = 'CONTACT_CONFIRMED'
 }

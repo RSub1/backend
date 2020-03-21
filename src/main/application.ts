@@ -1,6 +1,10 @@
 import { Application, OnError, Patch, Post, Request, Response } from 'skeidjs';
 import { InfectionService } from './service/infection.service';
-import { CmNotificationSubscriptionOptions, CmPatchInfectionStatePayload } from './model/client.model';
+import {
+    CmNewUserResponsePayload,
+    CmNotificationSubscriptionOptions,
+    CmPatchInfectionStatePayload, NotificationEvent
+} from './model/client.model';
 import { UserService } from './service/user.service';
 
 @Application({
@@ -12,7 +16,7 @@ import { UserService } from './service/user.service';
         keepAliveTimeout: 500
     },
 })
-class RSubOneBoot implements OnError{
+class RSubOneBoot implements OnError {
 
     constructor( private infectionService: InfectionService, private userService: UserService ) {}
 
@@ -23,7 +27,7 @@ class RSubOneBoot implements OnError{
     @Post({ route: '/v0/' } )
     createNew( request: Request, response: Response ) {
         this.userService.createNew().then(id => {
-            response.status(201, 'User Created').respond({ id })
+            response.status(201, 'User Created').respond({ id } as CmNewUserResponsePayload)
         });
     }
 
@@ -37,15 +41,15 @@ class RSubOneBoot implements OnError{
         this.infectionService.observePotentialContaminationWithContactList(payload.contactPersonIds)
             .subscribe(hasRisk => {
                 if(hasRisk) {
-                    response.event().dispatch('RISK', {})
+                    response.event().dispatch(NotificationEvent.CONTACT_CONFIRMED, {})
                 }
-            })
+            });
     }
 
     @Patch({ route: '/v0/_self' } )
     patchInfectionStatus( request: Request, response: Response ) {
         const body: CmPatchInfectionStatePayload = request.json() as CmPatchInfectionStatePayload;
-        this.infectionService.patchUserInfection(body.user, body.state).then(_ => {
+        this.infectionService.patchUserInfection(body.userId, body.state).then(_ => {
             response.status(204, 'User infection was patched').respond();
         }).catch(_ => response.status(500, 'Internal Server Error'));
     }
