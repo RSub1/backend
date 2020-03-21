@@ -1,4 +1,4 @@
-import { Application, OnError, Patch, Post, Request, Response, ServerEventDispatcher } from 'skeidjs';
+import { Application, Get, OnError, Patch, Post, Request, Response, ServerEventDispatcher } from 'skeidjs';
 import { InfectionService } from './service/infection.service';
 import {
     CmNewUserResponsePayload,
@@ -7,6 +7,7 @@ import {
 } from './model/client.model';
 import { UserService } from './service/user.service';
 import has = Reflect.has;
+import { TestService } from './test.env';
 
 @Application({
     contentType: 'application/json',
@@ -19,7 +20,10 @@ import has = Reflect.has;
 })
 class RSubOneBoot implements OnError {
 
-    constructor( private infectionService: InfectionService, private userService: UserService ) {}
+    constructor( private infectionService: InfectionService,
+                 private userService: UserService,
+                 private testService: TestService
+    ) {}
 
     onError( error?: any ) {
         console.log(error)
@@ -63,6 +67,12 @@ class RSubOneBoot implements OnError {
         this.infectionService.patchUserInfection(body.userId, body.state).then(_ => {
             response.status(204, 'User infection was patched').respond();
         }).catch(_ => response.status(500, 'Internal Server Error'));
+    }
+
+    @Get( { route: '/index' })
+    html( request: Request, response: Response ) {
+        response.setHeader('Content-Type', 'text/html')
+            .respond(this.testService.generateEventSourceHTML());
     }
 
 }
