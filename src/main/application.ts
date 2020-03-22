@@ -16,7 +16,8 @@ import {
 } from './model/client.model';
 import { UserService } from './service/user.service';
 import { TestService } from './test.env';
-import { Feature, FeatureToggleService } from './service/feature-toggle.service';
+import { FeatureToggleService } from './service/feature-toggle.service';
+import { EncryptionFeatureComponent } from './encryption-feature.component';
 
 @Application({
     contentType: 'application/json',
@@ -26,6 +27,7 @@ import { Feature, FeatureToggleService } from './service/feature-toggle.service'
         timeout: 500,
         keepAliveTimeout: 500
     },
+    components: [EncryptionFeatureComponent]
 })
 class RSubOneBoot implements OnError {
 
@@ -81,7 +83,7 @@ class RSubOneBoot implements OnError {
 
     @Get( { route: '/index' })
     html( request: Request, response: Response ) {
-        if ( this.togglzService.isActive(Feature.of('INDEX_HTML')) ) {
+        if ( this.togglzService.isActive('INDEX_HTML') ) {
             response.setHeader('Content-Type', 'text/html')
                 .respond(this.testService.generateEventSourceHTML());
         } else {
@@ -93,14 +95,10 @@ class RSubOneBoot implements OnError {
     patchToggles( request: Request, response: Response ) {
         const featurePatches = request.json() as CmPatchTogglesPayload;
         try {
-            featurePatches.enable
-                .map(name => Feature.of(name))
-                .forEach(feature => this.togglzService.switchToggle(feature, true));
-            featurePatches.disable
-                .map(name => Feature.of(name))
-                .forEach(feature => this.togglzService.switchToggle(feature, false));
+            this.togglzService.patchCollection(featurePatches.enable, featurePatches.disable);
             response.status(204, 'Toggled').respond();
         } catch ( error ) {
+            console.log(error);
             response.status(400, 'Bad Request').respond(error);
         }
     }

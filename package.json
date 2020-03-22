@@ -20,6 +20,7 @@
   "dependencies": {
     "moment": "^2.24.0",
     "mongoose": "^5.9.5",
+    "node-rsa": "^1.0.7",
     "rxjs": "^6.5.4",
     "skeidjs": "^1.8.0"
   }

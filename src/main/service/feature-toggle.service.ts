@@ -3,25 +3,27 @@ import { Injectable } from 'skeidjs';
 @Injectable()
 export class FeatureToggleService {
 
-    private activeToggles: Array<Feature>;
+    private static activeToggles: Array<Feature> = [];
 
-    constructor() {
-        this.activeToggles = [];
-    }
+    constructor() {}
 
     switchToggle( toggle: Feature, isActive: boolean ) {
         if (isActive) {
-            this.activeToggles.push(toggle);
+            FeatureToggleService.activeToggles.push(toggle);
         } else {
-            this.activeToggles = this.activeToggles.filter(t => t.name !== toggle.name);
+            FeatureToggleService.activeToggles = FeatureToggleService.activeToggles.filter(t => t.name !== toggle.name);
         }
     }
 
-    isActive( toggle: Feature ): boolean {
-        return !!this.activeToggles.filter(t => t.name === toggle.name).length;
+    patchCollection( enable: Array<string>, disable: Array<string> ) {
+        enable.map(Feature.of).forEach(f => this.switchToggle(f, true));
+        disable.map(Feature.of).forEach(f => this.switchToggle(f, false));
+    }
+
+    isActive( toggle: string ): boolean {
+        return !!FeatureToggleService.activeToggles.filter(t => t.name === Feature.of(toggle).name).length;
     }
 }
-
 
 export type FeatureName = 'ANONYMOUS_IDS' | 'INDEX_HTML';
 
@@ -33,7 +35,7 @@ function isFeatureName(something: unknown): something is FeatureName {
 export class Feature {
     name: FeatureName;
 
-    private constructor(name: FeatureName) {
+    public constructor(name: FeatureName) {
         this.name = name;
     }
 
@@ -44,5 +46,6 @@ export class Feature {
         else throw new TypeError(`'${name} is no valid feature'`);
     }
 }
+
 
 
