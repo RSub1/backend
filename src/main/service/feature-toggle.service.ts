@@ -25,11 +25,12 @@ export class FeatureToggleService {
     }
 }
 
-export type FeatureName = 'ANONYMOUS_IDS' | 'INDEX_HTML';
+export type FeatureName = 'ANONYMOUS_IDS' | 'INDEX_HTML' | 'SUBSCRIPTION_SESSION';
 
 function isFeatureName(something: unknown): something is FeatureName {
     return something === 'ANONYMOUS_IDS'
-        || something === 'INDEX_HTML';
+        || something === 'INDEX_HTML'
+        || something === 'SUBSCRIPTION_SESSION';
 }
 
 export class Feature {

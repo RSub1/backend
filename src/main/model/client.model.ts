@@ -29,6 +29,14 @@ export interface CmPatchTogglesPayload {
     disable: Array<string>;
 }
 
+export interface CmPatchSessionPayload {
+    addContactPersonIds: Array<string>;
+}
+
+export interface CmCreatedSession {
+    sessionId: string;
+}
+
 export enum InfectionState {
     CONFIRMED= 'CONFIRMED',
     PENDING = 'PENDING',

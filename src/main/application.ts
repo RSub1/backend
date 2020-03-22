@@ -19,6 +19,7 @@ import { TestService } from './test.env';
 import { FeatureToggleService } from './service/feature-toggle.service';
 import { EncryptionFeatureComponent } from './encryption-feature.component';
 import { EncryptionService } from './service/encryption-service';
+import { SessionComponent } from './session.component';
 
 @Application({
     contentType: 'application/json',
@@ -28,7 +29,7 @@ import { EncryptionService } from './service/encryption-service';
         timeout: 500,
         keepAliveTimeout: 500
     },
-    components: [EncryptionFeatureComponent]
+    components: [EncryptionFeatureComponent, SessionComponent]
 })
 class RSubOneBoot implements OnError {
 
