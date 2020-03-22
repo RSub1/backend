@@ -16,13 +16,18 @@ export class FeatureToggleService {
             this.activeToggles = this.activeToggles.filter(t => t.name !== toggle.name);
         }
     }
+
+    isActive( toggle: Feature ): boolean {
+        return !!this.activeToggles.filter(t => t.name === toggle.name).length;
+    }
 }
 
 
-export type FeatureName = 'ANONYMOUS_IDS';
+export type FeatureName = 'ANONYMOUS_IDS' | 'INDEX_HTML';
 
 function isFeatureName(something: unknown): something is FeatureName {
-    return something === 'ANONYMOUS_IDS';
+    return something === 'ANONYMOUS_IDS'
+        || something === 'INDEX_HTML';
 }
 
 export class Feature {
@@ -32,7 +37,7 @@ export class Feature {
         this.name = name;
     }
 
-    static of(name: string): Feature | never {
+    static of(name: string | FeatureName): Feature | never {
         if (isFeatureName(name)) {
             return new Feature(name);
         }

@@ -81,8 +81,12 @@ class RSubOneBoot implements OnError {
 
     @Get( { route: '/index' })
     html( request: Request, response: Response ) {
-        response.setHeader('Content-Type', 'text/html')
-            .respond(this.testService.generateEventSourceHTML());
+        if ( this.togglzService.isActive(Feature.of('INDEX_HTML')) ) {
+            response.setHeader('Content-Type', 'text/html')
+                .respond(this.testService.generateEventSourceHTML());
+        } else {
+            response.status(403, 'Toggle Disabled').respond();
+        }
     }
 
     @Patch( { route: '/togglz' })
