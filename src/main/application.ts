@@ -81,7 +81,9 @@ class RSubOneBoot implements OnError {
     patchInfectionStatus( request: Request, response: Response ) {
         const body: CmPatchInfectionStatePayload = request.json() as CmPatchInfectionStatePayload;
 
-        this.infectionService.patchUserInfection(body.userId, body.state).then(_ => {
+        const userId: string = this.mapId(body.userId);
+
+        this.infectionService.patchUserInfection(userId, body.state).then(_ => {
             response.status(204, 'User infection was patched').respond();
         }).catch(_ => response.status(500, 'Internal Server Error'));
     }
