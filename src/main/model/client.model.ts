@@ -3,6 +3,14 @@ export interface CmNewUserResponsePayload {
     id: string
 }
 
+export interface CmCreateIdEncryptionPayload {
+    privateId: string;
+}
+
+export interface CmCipher {
+    cipher: string;
+}
+
 export interface CmNotificationSubscriptionOptions {
     contactPersonIds: Array<string>;
 }

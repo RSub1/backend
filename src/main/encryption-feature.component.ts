@@ -1,7 +1,16 @@
-import { Component, Get, OnInit, Request, Response } from 'skeidjs';
-import { Feature, FeatureToggleService } from './service/feature-toggle.service';
-import * as RSA from 'node-rsa';
+import {
+    Component,
+    Get,
+    OnInit,
+    Post,
+    Request,
+    Response
+} from 'skeidjs';
+import { FeatureToggleService } from './service/feature-toggle.service';
 import { EncryptionService } from './service/encryption-service';
+import { CmCipher, CmCreateIdEncryptionPayload } from './model/client.model';
+
+import * as RSA from 'node-rsa';
 const fs = require('fs');
 
 @Component({
@@ -30,6 +39,15 @@ export class EncryptionFeatureComponent implements OnInit {
                 .status(200)
                 .setHeader('Content-Type', 'text/plain')
                 .respond(this.encryptionService.getConfiguration().publicKey.exportKey('public'));
+        }
+    }
+
+    @Post({ route: '/security/encrypted-id/new' })
+    getEncryption( request: Request, response: Response ) {
+        const userId = (request.json() as CmCreateIdEncryptionPayload).privateId;
+        if ( this.checkState(response) ) {
+            const cipher: string = this.encryptionService.encrypt(userId);
+            response.status(200).respond({ cipher } as CmCipher)
         }
     }
 

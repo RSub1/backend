@@ -19,7 +19,11 @@ export class EncryptionService {
         }
     }
 
-    public decrypt(something: unknown): string {
+    public decrypt( something: unknown ): string {
         return EncryptionService.rsaKeyPrivate.decrypt(something, 'utf8');
+    }
+
+    public encrypt( something: string ): string {
+        return EncryptionService.rsaKeyPublic.encrypt(something, 'base64', 'utf-8');
     }
 }
