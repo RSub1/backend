@@ -29,7 +29,7 @@ export class EncryptionFeatureComponent implements OnInit {
             response
                 .status(200)
                 .setHeader('Content-Type', 'text/plain')
-                .respond(this.encryptionService.getConfiguration().publicKey);
+                .respond(this.encryptionService.getConfiguration().publicKey.exportKey('public'));
         }
     }
 
