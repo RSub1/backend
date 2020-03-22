@@ -1,6 +1,7 @@
 import { Component, Get, OnInit, Request, Response } from 'skeidjs';
 import { Feature, FeatureToggleService } from './service/feature-toggle.service';
 import * as RSA from 'node-rsa';
+import { EncryptionService } from './service/encryption-service';
 const fs = require('fs');
 
 @Component({
@@ -8,23 +9,33 @@ const fs = require('fs');
 })
 export class EncryptionFeatureComponent implements OnInit {
 
-    private rsaKeyPrivate: RSA = null;
-
-    private rsaKeyPublic: string = null;
-
-    constructor( private togglzService: FeatureToggleService ) {}
+    constructor( private togglzService: FeatureToggleService, private encryptionService: EncryptionService ) {}
 
     public onInit(): void {
         try {
-            this.rsaKeyPrivate = new RSA(fs.readFileSync(process.env.PRIVATE_ID,'utf8'));
-            this.rsaKeyPublic = fs.readFileSync(process.env.PUBLIC_ID,'utf8');
+            this.encryptionService.setConfiguration(
+                new RSA(fs.readFileSync(process.env.PRIVATE_ID,'utf8')),
+                new RSA(fs.readFileSync(process.env.PUBLIC_ID,'utf8'))
+            );
         } catch ( e ) {
             console.log(e)
         }
     }
 
+
+    @Get({ route: '/security/public-key' })
+    getPublicKey( request: Request, response: Response ) {
+        if ( this.checkState(response) ) {
+            response
+                .status(200)
+                .setHeader('Content-Type', 'text/plain')
+                .respond(this.encryptionService.getConfiguration().publicKey);
+        }
+    }
+
+
     private checkState( response: Response ): true | undefined {
-        if (this.togglzService.isActive('ANONYMOUS_IDS') && this.rsaKeyPrivate) {
+        if (this.togglzService.isActive('ANONYMOUS_IDS') && this.encryptionService.getConfiguration().privateKey) {
             return true;
         } else if ( !this.togglzService.isActive('ANONYMOUS_IDS') ) {
             response.status(403, 'Anonymization is currently disabled');
@@ -34,15 +45,4 @@ export class EncryptionFeatureComponent implements OnInit {
             response.respond();
         }
     }
-
-    @Get({ route: '/security/public-key' })
-    getPublicKey( request: Request, response: Response ) {
-        if ( this.checkState(response) ) {
-            response
-                .status(200)
-                .setHeader('Content-Type', 'text/plain')
-                .respond(this.rsaKeyPublic);
-        }
-    }
-
 }

@@ -19,7 +19,7 @@ export class InfectionService {
 
         return UserModelAccessor.findOneAndUpdate({ _id: id }, { infectionState, dateOfConfirmedInfection })
             .exec().then(user => {
-                this.updates$.next({user, infectionSetTo: infectionState})
+                this.updates$.next({ user, infectionSetTo: infectionState })
             });
     }
 

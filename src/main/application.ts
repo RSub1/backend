@@ -18,6 +18,7 @@ import { UserService } from './service/user.service';
 import { TestService } from './test.env';
 import { FeatureToggleService } from './service/feature-toggle.service';
 import { EncryptionFeatureComponent } from './encryption-feature.component';
+import { EncryptionService } from './service/encryption-service';
 
 @Application({
     contentType: 'application/json',
@@ -33,6 +34,7 @@ class RSubOneBoot implements OnError {
 
     constructor( private infectionService: InfectionService,
                  private userService: UserService,
+                 private encryptionService: EncryptionService,
                  private togglzService: FeatureToggleService,
                  private testService: TestService
     ) {}
@@ -55,8 +57,10 @@ class RSubOneBoot implements OnError {
         .setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 
         const payload = request.json() as CmNotificationSubscriptionOptions;
+
         const eventDispatcher: ServerEventDispatcher = response.event();
-        this.infectionService.observePotentialContaminationWithContactList(payload.contactPersonIds)
+        this.infectionService
+            .observePotentialContaminationWithContactList(payload.contactPersonIds.map(id => this.mapId(id)))
             .subscribe(hasRisk => {
                 if(hasRisk) {
                     eventDispatcher.dispatch('CONTACT_CONFIRMED', {})
@@ -67,7 +71,7 @@ class RSubOneBoot implements OnError {
     @Post({ route: '/v0/_self/infection-info' })
     getStatus( request: Request, response: Response ) {
         const payload = request.json() as CmNotificationSubscriptionOptions;
-        this.infectionService.hadContactWithContaminated(payload.contactPersonIds)
+        this.infectionService.hadContactWithContaminated(payload.contactPersonIds.map(id => this.mapId(id)))
             .then(hadContactToInfectedPeople => {
                 response.status(200, 'OK').respond({ hadContactToInfectedPeople })
             });
@@ -76,6 +80,7 @@ class RSubOneBoot implements OnError {
     @Patch({ route: '/v0/_self' } )
     patchInfectionStatus( request: Request, response: Response ) {
         const body: CmPatchInfectionStatePayload = request.json() as CmPatchInfectionStatePayload;
+
         this.infectionService.patchUserInfection(body.userId, body.state).then(_ => {
             response.status(204, 'User infection was patched').respond();
         }).catch(_ => response.status(500, 'Internal Server Error'));
@@ -101,6 +106,13 @@ class RSubOneBoot implements OnError {
             console.log(error);
             response.status(400, 'Bad Request').respond(error);
         }
+    }
+
+    private mapId(id: string) {
+        if (this.togglzService.isActive('ANONYMOUS_IDS')) {
+            return this.encryptionService.decrypt(id);
+        }
+        return id;
     }
 
 }
