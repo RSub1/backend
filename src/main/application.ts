@@ -1,12 +1,22 @@
-import { Application, Get, OnError, Patch, Post, Request, Response, ServerEventDispatcher } from 'skeidjs';
+import {
+    Application,
+    Get,
+    OnError,
+    Patch,
+    Post,
+    Request,
+    Response,
+    ServerEventDispatcher
+} from 'skeidjs';
 import { InfectionService } from './service/infection.service';
 import {
     CmNewUserResponsePayload,
     CmNotificationSubscriptionOptions,
-    CmPatchInfectionStatePayload
+    CmPatchInfectionStatePayload, CmPatchTogglesPayload
 } from './model/client.model';
 import { UserService } from './service/user.service';
 import { TestService } from './test.env';
+import { Feature, FeatureToggleService } from './service/feature-toggle.service';
 
 @Application({
     contentType: 'application/json',
@@ -21,6 +31,7 @@ class RSubOneBoot implements OnError {
 
     constructor( private infectionService: InfectionService,
                  private userService: UserService,
+                 private togglzService: FeatureToggleService,
                  private testService: TestService
     ) {}
 
@@ -72,6 +83,22 @@ class RSubOneBoot implements OnError {
     html( request: Request, response: Response ) {
         response.setHeader('Content-Type', 'text/html')
             .respond(this.testService.generateEventSourceHTML());
+    }
+
+    @Patch( { route: '/togglz' })
+    patchToggles( request: Request, response: Response ) {
+        const featurePatches = request.json() as CmPatchTogglesPayload;
+        try {
+            featurePatches.enable
+                .map(name => Feature.of(name))
+                .forEach(feature => this.togglzService.switchToggle(feature, true));
+            featurePatches.disable
+                .map(name => Feature.of(name))
+                .forEach(feature => this.togglzService.switchToggle(feature, false));
+            response.status(204, 'Toggled').respond();
+        } catch ( error ) {
+            response.status(400, 'Bad Request').respond(error);
+        }
     }
 
 }

@@ -16,6 +16,11 @@ export interface CmPatchInfectionStatePayload {
     userId: string;
 }
 
+export interface CmPatchTogglesPayload {
+    enable: Array<string>;
+    disable: Array<string>;
+}
+
 export enum InfectionState {
     CONFIRMED= 'CONFIRMED',
     PENDING = 'PENDING',
